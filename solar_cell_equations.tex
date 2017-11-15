@@ -1,0 +1,114 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{mathpazo}
+\usepackage{hyperref}
+\usepackage[doi=false,style=authoryear-comp,dashed=false,firstinits=true]{biblatex}
+\bibliography{bibliography}
+\usepackage{amsmath}
+
+\renewcommand{\vec}[1]{\mathbf{#1}}
+
+\begin{document}
+
+\section{Spatial discretisation}
+
+Here we attempt to derive the weak form of the solar cell model given in the
+supplement to \cite{Calado2016}. We refer to equations from that supplement
+with the prefix s. We generalise the equations to arbitrary dimension.
+
+Let $\Omega = \Omega_n \cup \Omega_i \cup \Omega_p$ be the domain, and let
+$\Gamma$ be the domain boundary, with the following boundary conditions
+defined:
+\begin{gather}
+  J_n\cdot\vec{n} = 0 \quad\textrm{on }\Gamma\backslash\Gamma_n\\
+  n = n_0 \quad\textrm{on }\Gamma_n\\
+  J_p\cdot\vec{n} = 0 \quad\textrm{on }\Gamma\backslash\Gamma_p\\
+  p = p_0 \quad\textrm{on }\Gamma_p\\
+  J_a\cdot\vec{n} = 0 \quad\textrm{on }\Gamma\backslash\Gamma_a\\
+  a = a_0 \quad\textrm{on }\Gamma_a\\
+  \nabla V\cdot\vec{n} = 0 \quad\textrm{on }\Gamma\backslash\Gamma_V\\
+  V = V_0 \quad\textrm{on }\Gamma_V
+\end{gather}
+where $\vec{n}$ is the outward pointing normal to the domain.
+
+Let's start with the equation for negative charge carrier density $n$. From (s16) we have:
+\begin{align}
+  \frac{\partial n}{\partial t} = \frac{1}{q}\nabla\cdot J_n + G_n - U_n \quad \textrm{on
+  }\Omega
+\end{align}
+We choose a suitable function space $\mathcal{N}\equiv \mathcal{N}_0 \oplus \mathcal{N}_{\Gamma}$, multiply by a test function $\hat{n}$, and
+integrate by parts. The problem becomes becomes find $n\in \mathcal{N}$ such that:
+\begin{align}
+  \int_\Omega \frac{\partial n}{\partial t}\hat{n} \,\mathrm{d}x = 
+   \int_\Omega -\frac{J_n}{q} \cdot \nabla\hat{n} + G_n\hat{n} - U_n\hat{n} \,\mathrm{d}x
+   + \int_\Gamma \frac{J_n}{q}  \hat{n} \cdot \vec{n} \,\mathrm{d}s \quad
+  \forall \hat{n} \in \mathcal{N}_0.
+\end{align}
+However the surface term vanishes due to the boundary
+conditions. Substituting in (s11), we have:
+\begin{align}
+  \int_\Omega \frac{\partial n}{\partial t}\hat{n} \,\mathrm{d}x = 
+  \int_\Omega \mu_e\left(n \nabla V  
+  - \frac{k_b}{q} T  \nabla n \right)\cdot \nabla \hat{n} 
+  + \left(G_n - U_n\right)\hat{n} \,\mathrm{d}x \quad
+  \forall \hat{n} \in \mathcal{N}_0.\label{eq:n}
+\end{align}
+Similarly we have find $p\in \mathcal{P}\equiv\mathcal{P}_0 \oplus\mathcal{P}_{\Gamma_p}$ such that:
+\begin{align}
+  \int_\Omega \frac{\partial p}{\partial t} \hat{p}\,\mathrm{d}x = 
+  \int_\Omega \mu_h  \left(p \nabla V  
+  + \frac{k_b}{q} T  \nabla p\right) \cdot \nabla \hat{p} 
+  + \left(G_p - U_p\right)\hat{p} \,\mathrm{d}x \quad
+  \forall \hat{p} \in \mathcal{P}_0;\label{eq:p}
+\end{align}
+and find $a\in \mathcal{A}\equiv\mathcal{A}_0 \oplus\mathcal{A}_{\Gamma_a}$ such that:
+\begin{align}
+  \int_\Omega \frac{\partial a}{\partial t} \hat{a}\,\mathrm{d}x = 
+  \int_{\Omega_i} \mu_a  \left(p \nabla V 
+  + \frac{\mu_ak_b}{q} T  \nabla a\right) \cdot \nabla \hat{a} 
+  \,\mathrm{d}x \quad
+  \forall \hat{a} \in \mathcal{A}_0. \label{eq:a}
+\end{align}
+Note the restriction to the intrinsic region in the RHS of
+\eqref{eq:a}. Finally, if we define $\mathcal{V} \equiv \mathcal{V}_0 +
+\mathcal{V}_{\Gamma_V}$ and integrate (s20-s22) by parts over the doman, we
+have the problem find $v\in \mathcal{V}$ such that:
+\begin{align}
+  \int_\omega \nabla V \cdot \nabla\hat{V} \,\mathrm{d}x =
+  \frac{-q}{\epsilon_0\epsilon_r}\left(\int_{\Omega} n - p \,\mathrm{d}x +
+  \int_{\Omega_p} N_A \hat{V} \,\mathrm{d}x + 
+  \int_{\Omega_i} (-a + N_{\mathrm{ion}}) \hat{V} \,\mathrm{d}x + 
+  \int_{\Omega_n} - N_D \hat{V} \,\mathrm{d}x \right)
+\end{align}
+note once again the forcing and coupling terms apply over restricted parts
+of the domain.
+ 
+\subsection{Finite element spaces}
+
+Since $n$, $p$, $a$ and $V$ are all intrinsic quantities, it appears
+reasonable to represent them all in H1. That is to say we can try using
+straightforward continuous finite element spaces for all of them. In the
+first instance I'd try P1 (piecewise linear) elements. We can try getting
+flashy later.
+
+A potential issue with these elements is that the advection term (i.e. the
+drift term) is subject to overshoots with these discretisations. Whether
+this proves to be an issue in practice will depend on the relative sizes of
+the drift and diffusion terms. If this does prove to be an issue, we'll
+probably want to employ Petrov-Galerkin for the drift term.
+
+\section{Time}
+
+$p$ and $n$ move vastly more quickly than does $a$ (about $10^{13}$ faster
+according to the values of $\mu_a$, $\mu_e$, and $\mu_h$). Accordingly, the
+system as written will be impossibly stiff. A reasonable approximation is to
+assume that $p$ and $n$ move infinitely quickly. This amounts to dropping
+the time derivatives in \eqref{eq:n} and \eqref{eq:p}.
+
+$a$ can be timestepped using any appropriate ODE solver. The most obvious
+candidates would be the implicit midpoint rule or a Runge-Kutta scheme.
+
+\printbibliography
+
+\end{document}
