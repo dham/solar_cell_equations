@@ -15,7 +15,9 @@
 
 Here we attempt to derive the weak form of the solar cell model given in the
 supplement to \cite{Calado2016}. We refer to equations from that supplement
-with the prefix s. We generalise the equations to arbitrary dimension.
+with the prefix s. In correspondence with the authors, it emerges that
+(s17), (s18), and (s20-22) have sign errors. These are (hopefully) corrected here.
+We generalise the equations to arbitrary dimension. 
 
 Let $\Omega = \Omega_n \cup \Omega_i \cup \Omega_p$ be the domain, and let
 $\Gamma$ be the domain boundary, with the following boundary conditions
@@ -37,16 +39,21 @@ Let's start with the equation for negative charge carrier density $n$. From (s16
   \frac{\partial n}{\partial t} = \frac{1}{q}\nabla\cdot J_n + G_n - U_n \quad \textrm{on
   }\Omega
 \end{align}
+where from s(11):
+\begin{align}
+  J_n =  q\mu_e(-n\nabla V + k_b T \nabla n) \label{nflux}
+\end{align}
+
 We choose a suitable function space $\mathcal{N}\equiv \mathcal{N}_0 \oplus \mathcal{N}_{\Gamma}$, multiply by a test function $\hat{n}$, and
 integrate by parts. The problem becomes becomes find $n\in \mathcal{N}$ such that:
 \begin{align}
   \int_\Omega \frac{\partial n}{\partial t}\hat{n} \,\mathrm{d}x = 
-   \int_\Omega -\frac{J_n}{q} \cdot \nabla\hat{n} + G_n\hat{n} - U_n\hat{n} \,\mathrm{d}x
+    \int_\Omega -\frac{J_n}{q} \cdot \nabla\hat{n} + (G_n - U_n)\hat{n} \,\mathrm{d}x
    + \int_\Gamma \frac{J_n}{q}  \hat{n} \cdot \vec{n} \,\mathrm{d}s \quad
   \forall \hat{n} \in \mathcal{N}_0.
 \end{align}
 However the surface term vanishes due to the boundary
-conditions. Substituting in (s11), we have:
+conditions. Substituting in \eqref{nflux}, we have:
 \begin{align}
   \int_\Omega \frac{\partial n}{\partial t}\hat{n} \,\mathrm{d}x = 
   \int_\Omega \mu_e\left(n \nabla V  
@@ -54,19 +61,22 @@ conditions. Substituting in (s11), we have:
   + \left(G_n - U_n\right)\hat{n} \,\mathrm{d}x \quad
   \forall \hat{n} \in \mathcal{N}_0.\label{eq:n}
 \end{align}
-Similarly we have find $p\in \mathcal{P}\equiv\mathcal{P}_0 \oplus\mathcal{P}_{\Gamma_p}$ such that:
+Similarly, but accounting for the opposite drift direction of positive
+charges, we have find
+$p\in \mathcal{P}\equiv\mathcal{P}_0 \oplus\mathcal{P}_{\Gamma_p}$ such
+that:
 \begin{align}
   \int_\Omega \frac{\partial p}{\partial t} \hat{p}\,\mathrm{d}x = 
-  \int_\Omega \mu_h  \left(p \nabla V  
-  + \frac{k_b}{q} T  \nabla p\right) \cdot \nabla \hat{p} 
+  \int_\Omega \mu_h  \left(-p \nabla V  
+  - \frac{k_b}{q} T  \nabla p\right) \cdot \nabla \hat{p} 
   + \left(G_p - U_p\right)\hat{p} \,\mathrm{d}x \quad
   \forall \hat{p} \in \mathcal{P}_0;\label{eq:p}
 \end{align}
 and find $a\in \mathcal{A}\equiv\mathcal{A}_0 \oplus\mathcal{A}_{\Gamma_a}$ such that:
 \begin{align}
   \int_\Omega \frac{\partial a}{\partial t} \hat{a}\,\mathrm{d}x = 
-  \int_{\Omega_i} \mu_a  \left(p \nabla V 
-  + \frac{\mu_ak_b}{q} T  \nabla a\right) \cdot \nabla \hat{a} 
+  \int_{\Omega_i} \mu_a  \left(-a \nabla V 
+  - \frac{k_b}{q} T  \nabla a\right) \cdot \nabla \hat{a} 
   \,\mathrm{d}x \quad
   \forall \hat{a} \in \mathcal{A}_0. \label{eq:a}
 \end{align}
@@ -76,12 +86,12 @@ Note the restriction to the intrinsic region in the RHS of
 have the problem find $v\in \mathcal{V}$ such that:
 \begin{align}
   \int_\omega \nabla V \cdot \nabla\hat{V} \,\mathrm{d}x =
-  \frac{-q}{\epsilon_0\epsilon_r}\left(\int_{\Omega} n - p \,\mathrm{d}x +
+  \frac{q}{\epsilon_0\epsilon_r}\left(\int_{\Omega} n - p \,\mathrm{d}x +
   \int_{\Omega_p} N_A \hat{V} \,\mathrm{d}x + 
   \int_{\Omega_i} (-a + N_{\mathrm{ion}}) \hat{V} \,\mathrm{d}x + 
-  \int_{\Omega_n} - N_D \hat{V} \,\mathrm{d}x \right)
+  \int_{\Omega_n} - N_D \hat{V} \,\mathrm{d}x \right) \quad\forall \hat{V}\in\mathcal{V}_0.
 \end{align}
-note once again the forcing and coupling terms apply over restricted parts
+Note that the forcing and coupling terms apply over restricted parts
 of the domain.
  
 \subsection{Finite element spaces}
